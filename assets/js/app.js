@@ -126,18 +126,31 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
     // append y axis
     chartGroup.append("g")
       .call(leftAxis);
-  
+
     // append initial circles
     var circlesGroup = chartGroup.selectAll("circle")
-      .data(censusData)
-      .enter()
-      .append("circle")
-      .attr("cx", d => xLinearScale(d[chosenXAxis]))
-      .attr("cy", d => yLinearScale(d.healthcare))
-      .attr("r", 20)
-      .attr("fill", "pink")
-      .attr("opacity", ".5");
-  
+                                 .data(censusData)
+                                 .enter()
+                                 .append("circle")
+                                 .attr("cx", d => xLinearScale(d[chosenXAxis]))
+                                 .attr("cy", d => yLinearScale(d.healthcare))
+                                 .attr("r", 20)
+                                 .attr("class", "stateCircle")
+                                 .attr("opacity", ".5");
+
+    var text = chartGroup.selectAll("text")
+                          .data(censusData)
+                          .enter()
+                          .append("text");
+
+    var textLabels = text.attr("x", d => xLinearScale(d[chosenXAxis]))
+                         .attr("y", (d => yLinearScale(d.healthcare) + 5))
+                         .text( d => d.abbr )
+                         .attr("font-family", "sans-serif")
+                         .attr("font-size", "20px")
+                         .attr("fill", "white")
+                         .attr("text-anchor", "middle");
+
     // Create group for two x-axis labels
     var labelsGroup = chartGroup.append("g")
       .attr("transform", `translate(${width / 2}, ${height + 20})`);
