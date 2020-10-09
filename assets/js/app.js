@@ -138,7 +138,8 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
                                  .attr("class", "stateCircle")
                                  .attr("opacity", ".5");
 
-    var text = chartGroup.selectAll("text")
+    //var text = chartGroup.selectAll("text")
+    var text = chartGroup.selectAll(null)
                           .data(censusData)
                           .enter()
                           .append("text");
@@ -149,7 +150,7 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
                          .attr("font-family", "sans-serif")
                          .attr("font-size", "20px")
                          .attr("fill", "white")
-                         .attr("text-anchor", "middle");
+                         .attr("text-anchor", "middle");          
 
     // Create group for two x-axis labels
     var labelsGroup = chartGroup.append("g")
@@ -186,6 +187,7 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
       .on("click", function() {
         // get value of selection
         var value = d3.select(this).attr("value");
+        
         if (value !== chosenXAxis) {
   
           // replaces chosenXAxis with value
@@ -201,10 +203,10 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
           xAxis = renderAxes(xLinearScale, xAxis);
   
           // updates circles with new x values
-          circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis);
+          circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis, textLabels);
   
           // updates tooltips with new info
-          circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
+          circlesGroup = updateToolTip(chosenXAxis, circlesGroup, textLabels);
   
           // changes classes to change bold text
           if (chosenXAxis === "poverty") {
@@ -214,6 +216,14 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
             incomeLabel
               .classed("active", false)
               .classed("inactive", true);
+            chartGroup.selectAll("text")
+              .attr("x", d => xLinearScale(d[chosenXAxis]))
+              .attr("y", (d => yLinearScale(d.healthcare) + 5))
+              .text( d => d.abbr )
+              .attr("font-family", "sans-serif")
+              .attr("font-size", "20px")
+              .attr("fill", "white")
+              .attr("text-anchor", "middle");
           }
           else {
             povertyLabel
@@ -222,6 +232,14 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
             incomeLabel
               .classed("active", true)
               .classed("inactive", false);
+            chartGroup.selectAll("text")
+              .attr("x", d => xLinearScale(d[chosenXAxis]))
+              .attr("y", (d => yLinearScale(d.income) + 5))
+              .text( d => d.abbr )
+              .attr("font-family", "sans-serif")
+              .attr("font-size", "20px")
+              .attr("fill", "white")
+              .attr("text-anchor", "middle");              
           }
         }
       });
