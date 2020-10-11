@@ -71,18 +71,15 @@ function updateToolTip(chosenXAxis, circlesGroup) {
     if (chosenXAxis === "poverty") {
       label = "Poverty Rate:";
     }
-    else if (chosenXAxis === "age") {
-      label = "Age (Median):";
-    }
     else {
-      label = "Household Income (Median):";
+      label = "Household Income:";
     }
   
     var toolTip = d3.tip()
       .attr("class", "tooltip")
       .offset([80, -60])
       .html(function(d) {
-        return (`${d.state}<br>${label} ${d[chosenXAxis]}<br>Lacks Healthcare: ${d.healthcare}`);
+        return (`${d.state}<br>${label} ${d[chosenXAxis]}`);
       });
   
     circlesGroup.call(toolTip);
@@ -103,12 +100,9 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
     console.log(censusData);
     // parse data
     censusData.forEach(function(data) {
-        //x=axis data
         data.poverty = +data.poverty; // converts into integers
-        data.age = +data.age; // converts into integers
-        data.income = +data.income; // converts into integers
-        //y-axis data
         data.healthcare = +data.healthcare; // converts into integers
+        data.income = +data.income; // converts into integers
     });
   
     // xLinearScale function above csv import
@@ -153,11 +147,14 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
     var textLabels = text.attr("x", d => xLinearScale(d[chosenXAxis]))
                          .attr("y", (d => yLinearScale(d.healthcare) + 5))
                          .text( d => d.abbr )
-                         .attr("class", "stateText");                                   
+                         .attr("font-family", "sans-serif")
+                         .attr("font-size", "20px")
+                         .attr("fill", "white")
+                         .attr("text-anchor", "middle");          
 
-    // Create group for x-axis labels
+    // Create group for two x-axis labels
     var labelsGroup = chartGroup.append("g")
-      .attr("transform", `translate(${width/2}, ${height + 20})`);
+      .attr("transform", `translate(${width / 2}, ${height + 20})`);
   
     var povertyLabel = labelsGroup.append("text")
       .attr("x", 0)
@@ -166,16 +163,9 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
       .classed("active", true)
       .text("Poverty (%)");
   
-    var ageLabel = labelsGroup.append("text")
-      .attr("x", 0)
-      .attr("y", 40)
-      .attr("value", "age") // value to grab for event listener
-      .classed("inactive", true)
-      .text("Age (Median)");
-
     var incomeLabel = labelsGroup.append("text")
       .attr("x", 0)
-      .attr("y", 60)
+      .attr("y", 40)
       .attr("value", "income") // value to grab for event listener
       .classed("inactive", true)
       .text("Household Income (Median)");
@@ -219,60 +209,32 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
           circlesGroup = updateToolTip(chosenXAxis, circlesGroup, textLabels);
   
           // changes classes to change bold text
-          if (chosenXAxis === "poverty") 
-          {
+          if (chosenXAxis === "poverty") {
             povertyLabel
               .classed("active", true)
               .classed("inactive", false);
-            ageLabel
-              .classed("active", false)
-              .classed("inactive", true);
             incomeLabel
               .classed("active", false)
               .classed("inactive", true);
             chartGroup.selectAll("text")
               .attr("x", d => xLinearScale(d[chosenXAxis]))
-              .attr("y", (d => yLinearScale(d.healthcare)))
+              .attr("y", (d => yLinearScale(d.healthcare) + 5))
               .text( d => d.abbr )
               .attr("font-family", "sans-serif")
               .attr("font-size", "20px")
               .attr("fill", "white")
               .attr("text-anchor", "middle");
           }
-          else if (chosenXAxis === "age") 
-          {
+          else {
             povertyLabel
               .classed("active", false)
               .classed("inactive", true);
-            ageLabel
-              .classed("active", true)
-              .classed("inactive", false);              
-            incomeLabel
-              .classed("active", false)
-              .classed("inactive", true);
-            chartGroup.selectAll("text")
-              .attr("x", d => xLinearScale(d[chosenXAxis]))
-              .attr("y", (d => yLinearScale(d.healthcare)))
-              .text( d => d.abbr )
-              .attr("font-family", "sans-serif")
-              .attr("font-size", "20px")
-              .attr("fill", "white")
-              .attr("text-anchor", "middle");
-          }
-          else 
-          {
-            povertyLabel
-              .classed("active", false)
-              .classed("inactive", true);
-            ageLabel
-              .classed("active", false)
-              .classed("inactive", true);              
             incomeLabel
               .classed("active", true)
               .classed("inactive", false);
             chartGroup.selectAll("text")
               .attr("x", d => xLinearScale(d[chosenXAxis]))
-              .attr("y", (d => yLinearScale(d.healthcare)))
+              .attr("y", (d => yLinearScale(d.income) + 5))
               .text( d => d.abbr )
               .attr("font-family", "sans-serif")
               .attr("font-size", "20px")
