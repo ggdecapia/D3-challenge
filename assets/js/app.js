@@ -3,7 +3,8 @@ var svgWidth = 960;
 var svgHeight = 500;
 
 // define screen margins
-var margin = {
+var margin = 
+{
   top: 20,
   right: 40,
   bottom: 80,
@@ -30,7 +31,8 @@ var chartGroup = svg.append("g")
 var chosenXAxis = "poverty";
 
 // function used for updating x-scale var upon click on axis label
-function xScale(censusData, chosenXAxis) {
+function xScale(censusData, chosenXAxis) 
+{
     // create scales
     var xLinearScale = d3.scaleLinear()
       .domain([d3.min(censusData, d => d[chosenXAxis])  * 0.8,
@@ -42,7 +44,8 @@ function xScale(censusData, chosenXAxis) {
 }
 
 // function used for updating xAxis var upon click on axis label
-function renderAxes(newXScale, xAxis) {
+function renderAxes(newXScale, xAxis) 
+{
     var bottomAxis = d3.axisBottom(newXScale);
   
     xAxis.transition()
@@ -54,7 +57,8 @@ function renderAxes(newXScale, xAxis) {
 
 // function used for updating circles group with a transition to
 // new circles
-function renderCircles(circlesGroup, newXScale, chosenXAxis) {
+function renderCircles(circlesGroup, newXScale, chosenXAxis) 
+{
 
     circlesGroup.transition()
       .duration(1000)
@@ -64,45 +68,55 @@ function renderCircles(circlesGroup, newXScale, chosenXAxis) {
 }
 
 // function used for updating circles group with new tooltip
-function updateToolTip(chosenXAxis, circlesGroup) {
+function updateToolTip(chosenXAxis, circlesGroup) 
+{
 
     var label;
   
-    if (chosenXAxis === "poverty") {
+    if (chosenXAxis === "poverty") 
+    {
       label = "Poverty Rate:";
     }
-    else if (chosenXAxis === "age") {
+    else if (chosenXAxis === "age") 
+    {
       label = "Age (Median):";
     }
-    else {
+    else 
+    {
       label = "Household Income (Median):";
     }
   
     var toolTip = d3.tip()
       .attr("class", "tooltip")
       .offset([80, -60])
-      .html(function(d) {
+      .html(function(d) 
+      {
         return (`${d.state}<br>${label} ${d[chosenXAxis]}<br>Lacks Healthcare: ${d.healthcare}`);
       });
   
     circlesGroup.call(toolTip);
   
-    circlesGroup.on("mouseover", function(data) {
+    circlesGroup.on("mouseover", function(data) 
+    {
       toolTip.show(data);
     })
       // onmouseout event
-      .on("mouseout", function(data, index) {
+      .on("mouseout", function(data, index) 
+      {
         toolTip.hide(data);
       });
   
     return circlesGroup;
 }
 
-d3.csv("/assets/data/data.csv").then(function(censusData, err) {
+d3.csv("/assets/data/data.csv").then(function(censusData, err) 
+{
     if (err) throw err;
     console.log(censusData);
+
     // parse data
-    censusData.forEach(function(data) {
+    censusData.forEach(function(data) 
+    {
         //x=axis data
         data.poverty = +data.poverty; // converts into integers
         data.age = +data.age; // converts into integers
@@ -145,15 +159,24 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
                                  .attr("opacity", ".5");
 
     //var text = chartGroup.selectAll("text")
-    var text = chartGroup.selectAll(null)
+    var textLabel = chartGroup.selectAll(null)
                           .data(censusData)
                           .enter()
-                          .append("text");
+                          .append("text")
+                          .attr("x", d => xLinearScale(d[chosenXAxis]))
+                          .attr("y", (d => yLinearScale(d.healthcare) + 5))
+                          .text( d => d.abbr )
+                          .attr("class", "stateText");                                   
 
-    var textLabels = text.attr("x", d => xLinearScale(d[chosenXAxis]))
-                         .attr("y", (d => yLinearScale(d.healthcare) + 5))
-                         .text( d => d.abbr )
-                         .attr("class", "stateText");                                   
+    function renderAbbr(textsAbbr, newXScale, newYScale, chosenXAxis)
+    {
+      textsAbbr.transition()
+        .duration(1000)
+        .attr("x", d => newXScale(d[chosenXAxis]))
+        .attr("y", (d => newYScale(d.healthcare) + 5));
+      
+      return textsAbbr;
+    }
 
     // Create group for x-axis labels
     var labelsGroup = chartGroup.append("g")
@@ -203,8 +226,6 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
           // replaces chosenXAxis with value
           chosenXAxis = value;
   
-          // console.log(chosenXAxis)
-  
           // functions here found above csv import
           // updates x scale for new data
           xLinearScale = xScale(censusData, chosenXAxis);
@@ -213,11 +234,14 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
           xAxis = renderAxes(xLinearScale, xAxis);
   
           // updates circles with new x values
-          circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis, textLabels);
+          circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis);
   
           // updates tooltips with new info
-          circlesGroup = updateToolTip(chosenXAxis, circlesGroup, textLabels);
+          //circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
   
+          textLabel = renderAbbr(textLabel, xLinearScale, yLinearScale, chosenXAxis);
+          textLabel = updateToolTip(chosenXAxis, textLabel);
+
           // changes classes to change bold text
           if (chosenXAxis === "poverty") 
           {
@@ -230,14 +254,7 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
             incomeLabel
               .classed("active", false)
               .classed("inactive", true);
-            chartGroup.selectAll("text")
-              .attr("x", d => xLinearScale(d[chosenXAxis]))
-              .attr("y", (d => yLinearScale(d.healthcare)))
-              .text( d => d.abbr )
-              .attr("font-family", "sans-serif")
-              .attr("font-size", "20px")
-              .attr("fill", "white")
-              .attr("text-anchor", "middle");
+
           }
           else if (chosenXAxis === "age") 
           {
@@ -250,14 +267,6 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
             incomeLabel
               .classed("active", false)
               .classed("inactive", true);
-            chartGroup.selectAll("text")
-              .attr("x", d => xLinearScale(d[chosenXAxis]))
-              .attr("y", (d => yLinearScale(d.healthcare)))
-              .text( d => d.abbr )
-              .attr("font-family", "sans-serif")
-              .attr("font-size", "20px")
-              .attr("fill", "white")
-              .attr("text-anchor", "middle");
           }
           else 
           {
@@ -269,61 +278,11 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err) {
               .classed("inactive", true);              
             incomeLabel
               .classed("active", true)
-              .classed("inactive", false);
-            chartGroup.selectAll("text")
-              .attr("x", d => xLinearScale(d[chosenXAxis]))
-              .attr("y", (d => yLinearScale(d.healthcare)))
-              .text( d => d.abbr )
-              .attr("font-family", "sans-serif")
-              .attr("font-size", "20px")
-              .attr("fill", "white")
-              .attr("text-anchor", "middle");              
+              .classed("inactive", false);      
           }
         }
       });
-  }).catch(function(error) {
+  }).catch(function(error) 
+  {
     console.log(error);
   });
-  
-
-
-
-
-
-
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Load data from data.csv
-d3.csv("/assets/data/data.csv").then(function(censusData) {
-
-    console.log(censusData);
-  
-    // log a list of names
-    var IDs = censusData.map(data => data.id);
-    console.log("IDs: ", IDs);
-    var states = censusData.map(data => data.state);
-    console.log("states: ", states);
-    var abbr = censusData.map(data => data.abbr);
-    console.log("abbr: ", abbr);
-
-    // Cast each numeric values as a number using the unary + operator
-    censusData.forEach(function(data) {
-      data.poverty = +data.poverty; // converts into integers
-      data.healthcare = +data.healthcare; // converts into integers
-    });
-
-    var povertyRates = censusData.map(data => data.poverty);
-    console.log("povertyRates: ", povertyRates);
-    var healthcareRates = censusData.map(data => data.healthcare);
-    console.log("healthcareRates: ", healthcareRates);
-
-  }).catch(function(error) {
-    console.log(error);
-});
-  
-  
