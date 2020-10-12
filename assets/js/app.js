@@ -294,7 +294,6 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err)
           // replaces chosenXAxis with value
           chosenXAxis = value;
   
-          // functions here found above csv import
           // updates x scale for new data
           xLinearScale = xScale(censusData, chosenXAxis);
   
@@ -357,17 +356,16 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err)
             //alert(value);
             if (value !== chosenYAxis) {
 
-              // replaces chosenXAxis with value
+              // replaces chosenYAxis with value
               chosenYAxis = value;
       
-              // functions here found above csv import
-              // updates x scale for new data
+              // updates y scale for new data
               yLinearScale = yScale(censusData, chosenYAxis);
       
-              // updates x axis with transition
+              // updates y axis with transition
               yAxis = renderYAxes(yLinearScale, yAxis);
       
-              // updates circles with new x values
+              // updates circles with new y values
               circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis, yLinearScale, chosenYAxis);
                    
               textLabel = renderAbbr(textLabel, xLinearScale, yLinearScale, chosenXAxis, chosenYAxis);
