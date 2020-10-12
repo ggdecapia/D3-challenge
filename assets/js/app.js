@@ -27,11 +27,11 @@ var svg = d3
 var chartGroup = svg.append("g")
   .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-// Initial Params
+// Initial/default Parameters
 var chosenXAxis = "poverty";
 var chosenYAxis = "obesity";
 
-// function used for updating x-scale var upon click on axis label
+// function used for updating x-scale var upon click on x-axis label
 function xScale(censusData, chosenXAxis) 
 {
     // create scales
@@ -44,7 +44,7 @@ function xScale(censusData, chosenXAxis)
     return xLinearScale;
 }
 
-// function used for updating y-scale var upon click on axis label
+// function used for updating y-scale var upon click on y-axis label
 function yScale(censusData, chosenYAxis) 
 {
     // create scales
@@ -57,7 +57,7 @@ function yScale(censusData, chosenYAxis)
     return yLinearScale;
 }
 
-// function used for updating xAxis var upon click on axis label
+// function used for updating xAxis var upon click on x-axis label
 function renderXAxes(newXScale, xAxis) 
 {
     var bottomAxis = d3.axisBottom(newXScale);
@@ -69,7 +69,7 @@ function renderXAxes(newXScale, xAxis)
     return xAxis;
 }
 
-// function used for updating xAxis var upon click on axis label
+// function used for updating xAxis var upon click on y-axis label
 function renderYAxes(newYScale, yAxis) 
 {
     var leftAxis = d3.axisLeft(newYScale);
@@ -81,8 +81,7 @@ function renderYAxes(newYScale, yAxis)
     return yAxis;
 }
 
-// function used for updating circles group with a transition to
-// new circles
+// function used for updating circles group with a transition to new circles
 function renderCircles(circlesGroup, newXScale, chosenXAxis, newYScale, chosenYAxis)
 {
 
@@ -94,13 +93,12 @@ function renderCircles(circlesGroup, newXScale, chosenXAxis, newYScale, chosenYA
     return circlesGroup;
 }
 
-// function used for updating circles group with new tooltip
+// function used for updating circles group with new tooltip for the chosenXAxis/chosenYAxis
 function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup) 
 {
-
+    // sets x-axis label values
     var xLabel;
-    var yLabel;
-  
+      
     if (chosenXAxis === "poverty") 
     {
       xLabel = "Poverty Rate: ";
@@ -114,6 +112,9 @@ function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup)
       xLabel = "Household Income (Median): ";
     }
   
+    // sets y-axis label values
+    var yLabel;
+
     if (chosenYAxis === "obesity") 
     {
       yLabel = "Obesity: ";
@@ -127,21 +128,25 @@ function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup)
       yLabel = "Healthcare: ";
     }
 
+    // define toolTip attributes
     var toolTip = d3.tip()
       .attr("class", "d3-tip")
       .offset([80, -60])
-      .html(function(d) 
+      .html( d => `${d.state}<br>${xLabel} ${d[chosenXAxis]}<br>${yLabel} ${d[chosenYAxis]}`)
+      /*.html(function(d) 
       {
         return (`${d.state}<br>${xLabel} ${d[chosenXAxis]}<br>${yLabel} ${d[chosenYAxis]}`);
-      });
+      })*/
+      ;
   
     circlesGroup.call(toolTip);
   
+    // onmouseover event-handling
     circlesGroup.on("mouseover", function(data) 
     {
       toolTip.show(data);
     })
-      // onmouseout event
+      // onmouseout event-handling
       .on("mouseout", function(data, index) 
       {
         toolTip.hide(data);
@@ -150,6 +155,7 @@ function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup)
     return circlesGroup;
 }
 
+// 
 d3.csv("/assets/data/data.csv").then(function(censusData, err) 
 {
     if (err) throw err;
@@ -296,9 +302,6 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err)
           // updates circles with new x values
           circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis, yLinearScale, chosenYAxis);
   
-          // updates tooltips with new info
-          //circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
-  
           textLabel = renderAbbr(textLabel, xLinearScale, yLinearScale, chosenXAxis, chosenYAxis);
           textLabel = updateToolTip(chosenXAxis, chosenYAxis, textLabel);
 
@@ -341,6 +344,7 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err)
               .classed("inactive", false);      
           }
         }
+      });        
       yLabelsGroup.selectAll("text")
         .on("click", function() 
         {
@@ -403,9 +407,7 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err)
                   .classed("active", true)
                   .classed("inactive", false);      
               }
-            }                    
-        });
-
+            }                   
       });
   }).catch(function(error) 
   {
