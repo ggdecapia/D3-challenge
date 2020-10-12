@@ -132,11 +132,22 @@ function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup)
     var toolTip = d3.tip()
       .attr("class", "d3-tip")
       .offset([80, -60])
-      .html( d => `${d.state}<br>${xLabel} ${d[chosenXAxis]}<br>${yLabel} ${d[chosenYAxis]}`)
-      /*.html(function(d) 
+      .html(function(d) 
       {
-        return (`${d.state}<br>${xLabel} ${d[chosenXAxis]}<br>${yLabel} ${d[chosenYAxis]}`);
-      })*/
+        //set tooltip text format based on the chosenXAxis
+        if (chosenXAxis === "poverty")
+        {
+          return (`${d.state}<br>${xLabel} ${d[chosenXAxis]}%<br>${yLabel} ${d[chosenYAxis]}%`);
+        }
+        else if (chosenXAxis === "age")
+        {
+          return (`${d.state}<br>${xLabel} ${d[chosenXAxis]}yrs<br>${yLabel} ${d[chosenYAxis]}%`);
+        }
+        else 
+        {
+          return (`${d.state}<br>${xLabel} $${d[chosenXAxis]}<br>${yLabel} ${d[chosenYAxis]}%`);        
+        }
+      })
       ;
   
     circlesGroup.call(toolTip);
@@ -302,9 +313,8 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err)
   
           // updates circles with new x values
           circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis, yLinearScale, chosenYAxis);
-  
+          circlesGroup = updateToolTip(chosenXAxis, chosenYAxis, circlesGroup);  
           textLabel = renderAbbr(textLabel, xLinearScale, yLinearScale, chosenXAxis, chosenYAxis);
-          textLabel = updateToolTip(chosenXAxis, chosenYAxis, textLabel);
 
           // changes classes to change bold text
           if (chosenXAxis === "poverty") 
@@ -367,9 +377,8 @@ d3.csv("/assets/data/data.csv").then(function(censusData, err)
       
               // updates circles with new y values
               circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis, yLinearScale, chosenYAxis);
-                   
+              circlesGroup = updateToolTip(chosenXAxis, chosenYAxis, circlesGroup);
               textLabel = renderAbbr(textLabel, xLinearScale, yLinearScale, chosenXAxis, chosenYAxis);
-              textLabel = updateToolTip(chosenXAxis, chosenYAxis, textLabel);
     
               // changes classes to change bold text
               if (chosenYAxis === "obesity") 
